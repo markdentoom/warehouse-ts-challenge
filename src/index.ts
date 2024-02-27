@@ -1,9 +1,13 @@
-import Client from "./client"
+import WarehouseManager from "./WarehouseManager"
 
-const printResults = async () => {  // TODO rename this func
-    const client = new Client
+const processOrders = async () => {
+  const warehouseManager = new WarehouseManager()
 
-    console.log(await client.getHeatPumps())
+  // TODO
+  // process orders
+  // log process report
+  // log invoices of all successful orders
+  // log restock report
 }
 
-printResults()
+processOrders()

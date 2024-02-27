@@ -15,7 +15,7 @@ export default class Client {
 
   async getHeatPumps() {
     /*
-    BUG all of these GET functions don't throw errors when value types
+    BUG all of these GET methods don't throw errors when value types
     don't match that of the interfaces or that of the class parameters we
     map to.
     */
