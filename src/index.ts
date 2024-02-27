@@ -1,3 +1,9 @@
-import { exampleFunction } from './example';
+import Client from "./client"
 
-console.log(exampleFunction());
+const printResults = async () => {  // TODO rename this func
+    const client = new Client
+
+    console.log(await client.getHeatPumps())
+}
+
+printResults()
