@@ -76,11 +76,15 @@ export class Order {
         // TODO make sure to prevent processing orders multiple times
         // TODO account for using tools on different days
         const item = this.findItemObject(inventoryItems, article)
-        item!.decreaseStock(count)
+        if (item) {
+          item.decreaseStock(count)
+        }
       }
     }
 
-    return `Order: ${this.id}\nIs processed: ${isOrderPossible}${orderLines}`
+    // TODO working with strings isn't great, convert these to objects
+    // and use console.table to display it
+    return `Order: ${this.id}\nIs ordered: ${isOrderPossible}${orderLines}`
   }
 
   formattedInvoice(inventoryItems: ItemType[]) {

@@ -2,7 +2,7 @@ import Client from "./Client"
 import { HeatPump, InstallationMaterial, Tool } from "./items/items"
 import { Order } from "./items/orders"
 
-const RESTOCK_THRESHOLD = 3 // TODO move this to settings file
+const RESTOCK_THRESHOLD = 5 // TODO move this to settings file
 
 export default class WarehouseManager {
   heatPumps: HeatPump[] = []
@@ -33,6 +33,7 @@ export default class WarehouseManager {
     })
     return processReport
   }
+
   getInvoicesReport() {
     let invoicesReport = ""
     this.orders.forEach((order) => {
@@ -41,8 +42,17 @@ export default class WarehouseManager {
     })
     return invoicesReport
   }
+
   getRestockReport() {
-    // TODO go over all products and return a report of
-    // products we should restock
+    let restockReport = ""
+    for (const item of this.inventoryItems) {
+      if (item.stock >= RESTOCK_THRESHOLD) {
+        continue
+      }
+      restockReport += `\n${item.constructor.name} - ${item.name} - Stock: ${item.stock}`
+    }
+    // BUG the stock numbers will be wrong because we don't account for using
+    // tools on different days yet
+    return restockReport
   }
 }

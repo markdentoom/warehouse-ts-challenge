@@ -9,9 +9,10 @@ export default async function processOrdersAndLogReports() {
   const invoicesReport = warehouseManager.getInvoicesReport()
   const restockReport = warehouseManager.getRestockReport()
 
+  // TODO clean up inconsistent newlines
   console.log("PROCESS REPORT", processReport)
   console.log("\n\nINVOICE REPORT", invoicesReport)
-  console.log("\n\nRESTOCK REPORT", restockReport)
+  console.log("\n\nRESTOCK REPORT\n", restockReport)
 }
 
 processOrdersAndLogReports()
