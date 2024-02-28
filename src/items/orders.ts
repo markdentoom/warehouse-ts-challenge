@@ -1,9 +1,12 @@
 import { IOrder } from "./itemTypes"
 import { HeatPump, InstallationMaterial, Tool } from "./items"
+import convertToEuro from "./utils"
 
 const ORDER_ITEM_SUCCESS = "Success"
 const ORDER_ITEM_NOT_FOUND = "Product not found"
 const ORDER_ITEM_OUT_OF_STOCK = "Not enough stock"
+
+type ItemType = HeatPump | InstallationMaterial | Tool
 
 export class Order {
   id: string
@@ -24,25 +27,18 @@ export class Order {
     })
   }
 
-  formatInvoice() {
-    // TODO should we be able to generate invoices if we can't
-    // fullfill the order?
-    // TODO create invoice with total price & list of articles, e.g.
-    // Order: ${id}
-    // Total price: €63456,45
-    // quantity - category - product - price
-    // 3x Heat pump - Midea 6 - €1.99
-    // 1x Installation Material - €345
-    // 3x Tool - Hammer, 5 lbs - €0
-  }
-
-  formatReportLine(
-    count: number,
-    isItemOrderable: boolean,
-    item?: HeatPump | InstallationMaterial | Tool
-  ) {
+  formatReportLine(count: number, item?: ItemType) {
     const productType = item ? item.constructor.name : "N/A"
     const productName = item ? item.name : "N/A"
+    return `\n${count}x ${productType} - ${productName}`
+  }
+
+  formatProcessReportLine(
+    count: number,
+    isItemOrderable: boolean,
+    item?: ItemType
+  ) {
+    let ProcessReportLine = this.formatReportLine(count, item)
 
     let productStatus = ORDER_ITEM_SUCCESS
     if (!item) {
@@ -51,17 +47,14 @@ export class Order {
       productStatus = ORDER_ITEM_OUT_OF_STOCK
     }
 
-    return `${count}x ${productType} - ${productName} - ${productStatus}`
+    return `${ProcessReportLine} - ${productStatus}`
   }
 
-  findItem(
-    inventoryItems: (HeatPump | InstallationMaterial | Tool)[],
-    itemId: string
-  ) {
+  findItemObject(inventoryItems: ItemType[], itemId: string) {
     return inventoryItems.find((inventoryItem) => inventoryItem.id == itemId)
   }
 
-  process(inventoryItems: (HeatPump | InstallationMaterial | Tool)[]) {
+  process(inventoryItems: ItemType[]) {
     // TODO this method checks if the order is possible, generates an order
     // report, and processes the order. Split it up if feasible
 
@@ -69,25 +62,51 @@ export class Order {
     let orderLines = ``
 
     for (const [article, count] of Object.entries(this.articleCounts)) {
-      const item = this.findItem(inventoryItems, article)
+      const item = this.findItemObject(inventoryItems, article)
       const isItemOrderable = Boolean(item && item!.stock >= count)
       if (!isItemOrderable) {
         isOrderPossible = false
       }
 
-      orderLines += `\n${this.formatReportLine(count, isItemOrderable, item)}`
+      orderLines += this.formatProcessReportLine(count, isItemOrderable, item)
     }
 
     if (isOrderPossible) {
       for (const [article, count] of Object.entries(this.articleCounts)) {
         // TODO make sure to prevent processing orders multiple times
         // TODO account for using tools on different days
-        const item = this.findItem(inventoryItems, article)
+        const item = this.findItemObject(inventoryItems, article)
         item!.decreaseStock(count)
       }
     }
 
-    const orderReport = `Order: ${this.id}\nIs processed: ${isOrderPossible}${orderLines}`
-    return orderReport
+    return `Order: ${this.id}\nIs processed: ${isOrderPossible}${orderLines}`
+  }
+
+  formattedInvoice(inventoryItems: ItemType[]) {
+    // TODO should we be able to generate invoices for order
+    // that we can't fullfill?
+    let totalPrice: string | number = 0
+    let invoiceLines = ``
+
+    for (const [article, count] of Object.entries(this.articleCounts)) {
+      const item = this.findItemObject(inventoryItems, article)
+      let invoiceReportLine = this.formatReportLine(count, item)
+
+      let price: string | number = "N/A"
+      if (
+        item &&
+        (item instanceof HeatPump || item instanceof InstallationMaterial)
+      ) {
+        price = item.unitPrice * count
+        totalPrice += price
+        price = convertToEuro(price)
+      }
+
+      invoiceLines += `${invoiceReportLine} - ${price}`
+    }
+
+    totalPrice = convertToEuro(totalPrice)
+    return `Order: ${this.id}\nTotal price: ${totalPrice}${invoiceLines}`
   }
 }

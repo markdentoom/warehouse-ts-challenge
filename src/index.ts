@@ -6,13 +6,12 @@ export default async function processOrdersAndLogReports() {
   await warehouseManager.fetchDataFromServer()
 
   const processReport = warehouseManager.processOrders()
-  console.log(processReport)
+  const invoicesReport = warehouseManager.getInvoicesReport()
+  const restockReport = warehouseManager.getRestockReport()
 
-  // TODO
-  // process orders
-  // log process report
-  // log invoices of all successful orders
-  // log restock report
+  console.log("PROCESS REPORT", processReport)
+  console.log("\n\nINVOICE REPORT", invoicesReport)
+  console.log("\n\nRESTOCK REPORT", restockReport)
 }
 
 processOrdersAndLogReports()

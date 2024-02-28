@@ -26,20 +26,20 @@ export default class WarehouseManager {
   }
 
   processOrders() {
-    if (!this.inventoryItems || !this.orders) {
-      throw new Error("Cannot process orders without data")
-    }
-
     let processReport = ""
     this.orders.forEach((order) => {
       const orderReport = order.process(this.inventoryItems)
       processReport += `\n\n${orderReport}`
     })
-
     return processReport
   }
-  getInvoices() {
-    // TODO return invoices of processed orders
+  getInvoicesReport() {
+    let invoicesReport = ""
+    this.orders.forEach((order) => {
+      const orderReport = order.formattedInvoice(this.inventoryItems)
+      invoicesReport += `\n\n${orderReport}`
+    })
+    return invoicesReport
   }
   getRestockReport() {
     // TODO go over all products and return a report of
