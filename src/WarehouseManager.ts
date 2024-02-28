@@ -1,14 +1,42 @@
 import Client from "./Client"
+import { HeatPump, InstallationMaterial, Tool } from "./items/items"
+import { Order } from "./items/orders"
 
 const RESTOCK_THRESHOLD = 3 // TODO move this to settings file
 
 export default class WarehouseManager {
-  client = new Client()
+  heatPumps: HeatPump[] = []
+  installationMaterials: InstallationMaterial[] = []
+  tools: Tool[] = []
+  inventoryItems: (HeatPump | InstallationMaterial | Tool)[] = []
+  orders: Order[] = []
+
+  async fetchDataFromServer() {
+    const client = new Client()
+
+    this.heatPumps = await client.getHeatPumps()
+    this.installationMaterials = await client.getInstallationMaterials()
+    this.tools = await client.getTools()
+    this.inventoryItems = [
+      ...this.heatPumps,
+      ...this.installationMaterials,
+      ...this.tools,
+    ]
+    this.orders = await client.getOrders()
+  }
 
   processOrders() {
-    // TODO Process all orders we can and return a process
-    // report with info on successfully processed orders and
-    // failed orders
+    if (!this.inventoryItems || !this.orders) {
+      throw new Error("Cannot process orders without data")
+    }
+
+    let processReport = ""
+    this.orders.forEach((order) => {
+      const orderReport = order.process(this.inventoryItems)
+      processReport += `\n\n${orderReport}`
+    })
+
+    return processReport
   }
   getInvoices() {
     // TODO return invoices of processed orders

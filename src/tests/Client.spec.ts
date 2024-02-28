@@ -14,4 +14,5 @@ describe(Client.name, () => {
   test("getHeatPumps call getData", () => {})
   test("getHeatPumps maps JSON to HeatPump objects", () => {})
   test("getHeatPumps errors with wrong JSON types", () => {})
+  // TODO think of more edge cases + order sorting tests
 })
