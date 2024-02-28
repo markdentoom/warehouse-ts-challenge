@@ -1,4 +1,5 @@
-import { HeatPump, InstallationMaterial, Tool, Order } from "./items/items"
+import { HeatPump, InstallationMaterial, Tool } from "./items/items"
+import { Order } from "./items/orders"
 import { IGenericItem, IGenericProduct, IOrder } from "./items/itemTypes"
 
 const SERVER_URL = "http://localhost:3000" // TODO move this to settings file
@@ -37,7 +38,12 @@ export default class Client {
   }
 
   async getOrders() {
-    const orders = await this.getData("/orders")
-    return orders.map((order: IOrder) => new Order(order))
+    const ordersJSON = await this.getData("/orders")
+    const orders = ordersJSON.map((order: IOrder) => new Order(order))
+    const sortedOrders = orders.sort((a: Order, b: Order) => {
+      return a.installationDate.getTime() - b.installationDate.getTime()
+    })
+
+    return sortedOrders
   }
 }
